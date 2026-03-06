@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Booking</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>⏰ Slot Booking</h1>
+        <p>Reserve your time slot quickly and easily</p>
+    </header>
+
+    <main>
+        <!-- Available Slots -->
+        <section class="section">
+            <h2>Available Slots</h2>
+            <div class="slots-grid">
+                {% for slot in slots %}
+                <div class="slot-card {{ 'booked' if slot.is_booked else 'available' }}">
+                    <span class="slot-time">{{ slot.slot_time }}</span>
+                    <span class="badge">{{ 'Booked' if slot.is_booked else 'Available' }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Booking Form -->
+        <section class="section">
+            <h2>Book a Slot</h2>
+            <form action="/book" method="post" class="booking-form">
+                <div class="form-group">
+                    <label for="slot_id">Select Slot</label>
+                    <select name="slot_id" id="slot_id" required>
+                        <option value="">-- Choose a slot --</option>
+                        {% for slot in slots %}
+                            {% if not slot.is_booked %}
+                            <option value="{{ slot.id }}">{{ slot.slot_time }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user_name">Your Name</label>
+                    <input type="text" name="user_name" id="user_name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="user_email">Email Address</label>
+                    <input type="email" name="user_email" id="user_email" placeholder="john@example.com" required>
+                </div>
+                <button type="submit" class="btn-primary">Confirm Booking</button>
+            </form>
+        </section>
+
+        <!-- Booked Slots -->
+        <section class="section">
+            <h2>All Bookings</h2>
+            {% if bookings %}
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Time Slot</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking, slot in bookings %}
+                    <tr>
+                        <td>{{ booking.id }}</td>
+                        <td>{{ slot.slot_time }}</td>
+                        <td>{{ booking.user_name }}</td>
+                        <td>{{ booking.user_email }}</td>
+                        <td>
+                            <form action="/cancel/{{ booking.id }}" method="post" style="margin:0">
+                                <button type="submit" class="btn-cancel">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-msg">No bookings yet. Be the first!</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
